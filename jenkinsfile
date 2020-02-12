@@ -22,7 +22,10 @@ pipeline {
         stage("Push image") {
             steps {
                 script {
-                    docker.withRegistry('https://docker.io', 'dockerhub') {
+                        withCredentials([usernamePassword( credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASSWORD')]) {
+                        def registry_url = "registry.hub.docker.com/"
+                        bat "docker login -u $USER -p $PASSWORD ${registry_url}"
+                        docker.withRegistry("http://${registry_url}", "dockerhub") {
                             myapp.push("latest")
                             myapp.push("${env.BUILD_ID}")
                     }
